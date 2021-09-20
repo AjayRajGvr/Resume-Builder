@@ -2,7 +2,8 @@ import { useHistory } from "react-router-dom";
 import Button from "react-bootstrap/Button";
 import { connect } from "react-redux";
 import { resetDataAction } from "../../modules/reducer";
-import { PDFViewer, PDFDownloadLink } from "@react-pdf/renderer";
+import { BlobProvider, PDFDownloadLink } from "@react-pdf/renderer";
+import { Document, Page } from "react-pdf/dist/umd/entry.webpack";
 import TemplateOne from "../../components/template1/template";
 import TemplateTwo from "../../components/template2/template";
 import Row from "react-bootstrap/Row";
@@ -24,9 +25,17 @@ const ViewResume = (props) => {
             <Row className="justify-content-center">
               <Card className="text-center">
                 <Card.Body>
-                  <PDFViewer width="300px" height="400px" showToolbar={false}>
-                    <TemplateOne data={data} />
-                  </PDFViewer>
+                  <BlobProvider document={<TemplateOne data={data} />}>
+                    {({ url, loading }) => {
+                      return loading ? (
+                        "Loading..."
+                      ) : (
+                        <Document file={url} renderMode="svg">
+                          <Page pageNumber={1} scale={0.5} />
+                        </Document>
+                      );
+                    }}
+                  </BlobProvider>
                 </Card.Body>
                 <Card.Footer>
                   <PDFDownloadLink
@@ -41,9 +50,17 @@ const ViewResume = (props) => {
               </Card>
               <Card className="text-center mt-3 mt-sm-0 ml-md-3">
                 <Card.Body>
-                  <PDFViewer width="300px" height="400px" showToolbar={false}>
-                    <TemplateTwo data={data} />
-                  </PDFViewer>
+                  <BlobProvider document={<TemplateTwo data={data} />}>
+                    {({ blob, url, loading }) => {
+                      return loading ? (
+                        "Loading..."
+                      ) : (
+                        <Document file={url} renderMode="svg">
+                          <Page pageNumber={1} scale={0.5} />
+                        </Document>
+                      );
+                    }}
+                  </BlobProvider>
                 </Card.Body>
                 <Card.Footer>
                   <PDFDownloadLink
@@ -57,7 +74,7 @@ const ViewResume = (props) => {
                 </Card.Footer>
               </Card>
             </Row>
-            <Row className="mt-3 justify-content-center">
+            <Row className="mt-3 mb-3 justify-content-center">
               <Button onClick={() => history.push("/")}>Edit Resume</Button>
               <Button
                 onClick={() => {
